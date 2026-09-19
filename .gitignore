@@ -11,3 +11,4 @@ frontend/dist/
 *.log
 .DS_Store
 .pytest_cache/
+frontend/tsconfig.tsbuildinfo
