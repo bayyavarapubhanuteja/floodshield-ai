@@ -29,11 +29,13 @@ class Settings(BaseSettings):
 
     @property
     def cors_list(self) -> list[str]:
-        # Bare hostnames (e.g. injected by Render as "<name>.onrender.com") are treated as https origins.
+        # Bare hostnames / Render service names are treated as https origins.
         out = []
         for o in (x.strip().rstrip("/") for x in self.cors_origins.split(",")):
             if o:
-                out.append(o if "://" in o else f"https://{o}")
+                if "://" not in o:
+                    o = f"https://{o if '.' in o else o + '.onrender.com'}"  # Render injects bare service names
+                out.append(o)
         return out
 
     @property

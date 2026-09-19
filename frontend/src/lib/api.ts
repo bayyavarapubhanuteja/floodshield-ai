@@ -1,7 +1,11 @@
 /* API client: JWT auth with refresh, offline cache fallback, connectivity reporting. */
 const RAW_API = ((import.meta.env.VITE_API_URL as string | undefined) || "").trim().replace(/\/$/, "");
-// A bare host (e.g. injected by Render as "<name>.onrender.com") is treated as https.
-export const API_BASE: string = RAW_API && !/^https?:\/\//.test(RAW_API) ? `https://${RAW_API}` : RAW_API;
+// Render injects a bare service name ("floodshield-api-xxxx") or host; turn it into a public https URL.
+function publicBase(v: string): string {
+  if (!v || /^https?:\/\//.test(v)) return v;
+  return `https://${v.includes(".") ? v : `${v}.onrender.com`}`;
+}
+export const API_BASE: string = publicBase(RAW_API);
 
 const TOKEN = "fs_token";
 const REFRESH = "fs_refresh";
