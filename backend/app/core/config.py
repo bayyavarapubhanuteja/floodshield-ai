@@ -29,7 +29,22 @@ class Settings(BaseSettings):
 
     @property
     def cors_list(self) -> list[str]:
-        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        # Bare hostnames (e.g. injected by Render as "<name>.onrender.com") are treated as https origins.
+        out = []
+        for o in (x.strip().rstrip("/") for x in self.cors_origins.split(",")):
+            if o:
+                out.append(o if "://" in o else f"https://{o}")
+        return out
+
+    @property
+    def sqlalchemy_url(self) -> str:
+        # Managed Postgres providers hand out postgres:// URLs; SQLAlchemy needs postgresql+psycopg2://
+        u = self.database_url
+        if u.startswith("postgres://"):
+            u = "postgresql+psycopg2://" + u[len("postgres://"):]
+        elif u.startswith("postgresql://"):
+            u = "postgresql+psycopg2://" + u[len("postgresql://"):]
+        return u
 
 
 @lru_cache
