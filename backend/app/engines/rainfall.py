@@ -99,7 +99,8 @@ def phase_correlation(a: np.ndarray, b: np.ndarray) -> tuple[float, float]:
     win = np.outer(np.hanning(a.shape[0]), np.hanning(a.shape[1]))
     fa, fb = np.fft.fft2((a - a.mean()) * win), np.fft.fft2((b - b.mean()) * win)
     r = fb * np.conj(fa)
-    r /= np.abs(r) + 1e-9
+    # partial (square-root) whitening: full whitening locks onto the static window for smooth rain fields
+    r /= np.sqrt(np.abs(r)) + 1e-9
     corr = np.fft.ifft2(r).real
     py, px = np.unravel_index(np.argmax(corr), corr.shape)
     n, m = corr.shape

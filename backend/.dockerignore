@@ -1,0 +1,16 @@
+.venv/
+venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.env
+.env.*
+*.db
+*.sqlite
+*.log
+.DS_Store
+storage/uploads/*
+!storage/uploads/.gitkeep
+storage/models/*.pkl

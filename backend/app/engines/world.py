@@ -3,7 +3,7 @@ drainage-network digital twin and critical infrastructure.
 
 Everything here is DEMO DATA derived from a seeded generator so that every run of the
 platform produces identical geography. Real datasets (SRTM/Cartosat DEM, OSM roads,
-municipal drainage GIS) can replace any layer through `app.engines.loaders`.
+municipal drainage GIS) can replace these layers (see docs/GIS.md).
 """
 from __future__ import annotations
 

@@ -1,0 +1,75 @@
+# FloodShield AI — full stack: frontend (nginx) · backend (FastAPI) · db (PostGIS) · redis
+# Usage:  docker compose up -d --build   →   http://localhost:8080   (API docs: http://localhost:8000/api/docs)
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-}
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      FS_ENV: ${FS_ENV:-development}
+      FS_SECRET_KEY: ${FS_SECRET_KEY:-change-me-to-a-long-random-string}
+      FS_DATABASE_URL: postgresql+psycopg2://floodshield:${POSTGRES_PASSWORD:-floodshield}@db:5432/floodshield
+      FS_REDIS_URL: redis://redis:6379/0
+      FS_CORS_ORIGINS: ${FS_CORS_ORIGINS:-http://localhost:5173,http://localhost:8080}
+      FS_DEFAULT_CITY: ${FS_DEFAULT_CITY:-hyderabad}
+      FS_SEED_ADMIN_PASSWORD: ${FS_SEED_ADMIN_PASSWORD:-Admin@123}
+      FS_DEMO_SECONDS_TOTAL: ${FS_DEMO_SECONDS_TOTAL:-150}
+      FS_WEATHER_PROVIDER: ${FS_WEATHER_PROVIDER:-simulated}
+      FS_SMTP_HOST: ${FS_SMTP_HOST:-}
+      FS_SMS_GATEWAY_URL: ${FS_SMS_GATEWAY_URL:-}
+      FS_YOLO_WEIGHTS: ${FS_YOLO_WEIGHTS:-}
+    volumes:
+      - backend-storage:/app/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: floodshield
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-floodshield}
+      POSTGRES_DB: floodshield
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U floodshield -d floodshield"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:
+  backend-storage:

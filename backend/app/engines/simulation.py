@@ -64,7 +64,7 @@ def run_whatif(city: str, p: dict) -> dict:
     duration = int(np.clip(p.get("duration_min", 180), 15, 300))
     horizon = int(min(duration + 60, 360))
     base_params = HydroParams()
-    base_scn = StormScenario(city)
+    base_scn = StormScenario(city, duration=duration)  # same event window as the scenario (isolates the changed parameter)
     intensity = p.get("rainfall_intensity")
     scn = StormScenario(city, fixed_intensity=float(intensity) if intensity else None,
                         multiplier=float(p.get("rainfall_multiplier", 1.0)), duration=duration,
