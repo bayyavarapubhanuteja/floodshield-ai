@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+backend/floodshield.db
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
+backend/storage/models/*.pkl
+node_modules/
+frontend/dist/
+.env
+*.log
+.DS_Store
+.pytest_cache/
