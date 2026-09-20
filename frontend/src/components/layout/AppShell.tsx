@@ -43,7 +43,7 @@ function Brand({ compact }: { compact?: boolean }) {
       </svg>
       {!compact && (
         <div className="leading-tight">
-          <div className="font-extrabold tracking-tight text-[15px]">FLOODSHIELD <span className="text-brand">AI</span></div>
+          <div className="font-extrabold tracking-tight text-[15px]">FLOOD<span className="text-brand">SHIELD</span></div>
           <div className="text-[10px] text-muted">Predict · Protect · Respond</div>
         </div>
       )}

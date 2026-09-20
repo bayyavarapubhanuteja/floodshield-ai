@@ -12,8 +12,8 @@ export default function AuthLayout({ title, children }: { title: string; childre
         <div className="flex items-center gap-3">
           <svg viewBox="0 0 64 64" className="h-11 w-11"><path fill="#0ea5e9" d="M32 4 8 12v18c0 15 10 26 24 30 14-4 24-15 24-30V12L32 4z" /><path fill="#fff" d="M32 18c-5 7-10 13-10 19a10 10 0 0 0 20 0c0-6-5-12-10-19z" /></svg>
           <div>
-            <div className="text-2xl font-extrabold tracking-tight">FLOODSHIELD <span className="text-sky-400">AI</span></div>
-            <div className="text-sm text-slate-400">Urban Flood Nowcasting System · SIH26085</div>
+            <div className="text-2xl font-extrabold tracking-tight">FLOOD<span className="text-sky-400">SHIELD</span></div>
+            <div className="text-sm text-slate-400">Urban Flood Nowcasting System</div>
           </div>
         </div>
         <div>
@@ -25,7 +25,7 @@ export default function AuthLayout({ title, children }: { title: string; childre
             ))}
           </div>
         </div>
-        <div className="text-xs text-slate-500">Smart India Hackathon 2026 · Software-only platform · Demo data clearly labelled</div>
+        <div className="text-xs text-slate-500">Software-only platform · Demo data clearly labelled</div>
       </div>
       <div className="flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-md">
