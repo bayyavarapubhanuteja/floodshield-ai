@@ -357,6 +357,44 @@ def build_svg() -> str:
     return "\n".join(parts)
 
 
+# ---------------------------------------------------------------- compact strip (7 icons)
+TW, TH = 1800, 300
+CORE = [
+    ("React + TypeScript", g(atom("#61dafb"))),
+    ("Python 3.11", python_mark()),
+    ("FastAPI", bolt("#059669")),
+    ("PostgreSQL + PostGIS", cylinder("#336791")),
+    ("Leaflet GIS", leaf("#4ade80")),
+    ("scikit-learn + OpenCV", scatter("#f7931e")),
+    ("Docker", whale("#2496ed")),
+]
+
+
+def build_thin_svg() -> str:
+    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{TW}" height="{TH}" viewBox="0 0 {TW} {TH}" font-family="Inter, Helvetica, Arial, sans-serif">',
+             '<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#070c16"/><stop offset="1" stop-color="#0a1a2a"/></linearGradient></defs>',
+             rect(0, 0, TW, TH, 0, fill="url(#bg)"),
+             rect(28, 28, TW - 56, TH - 56, 20, fill=PANEL, stroke=LINE, sw=1.4),
+             rect(28, 28, 5, TH - 56, 3, fill=BRAND)]
+    parts.append(g(
+        f'<g transform="translate(64 60) scale(1.15)"><path fill="#0ea5e9" d="M32 4 8 12v18c0 15 10 26 24 30 14-4 24-15 24-30V12L32 4z" transform="scale(0.55)"/>'
+        f'<path fill="#fff" d="M32 18c-5 7-10 13-10 19a10 10 0 0 0 20 0c0-6-5-12-10-19z" transform="scale(0.55)"/></g>',
+        txt(112, 88, "FLOODSHIELD AI", size=26, fill=INK, weight=800, anchor="start"),
+        txt(112, 112, "Technology stack · software-only (no IoT / sensors)", size=13, fill=MUTED, weight=500, anchor="start")))
+    n = len(CORE)
+    x0, x1 = 64, TW - 64
+    step = (x1 - x0) / n
+    for i, (label, glyph) in enumerate(CORE):
+        cx = x0 + step * i + step / 2
+        y = 150
+        parts.append(g(rect(cx - 34, y, 68, 68, 18, fill="#ffffff", sw=0, op=0.05),
+                       rect(cx - 34, y, 68, 68, 18, fill="none", stroke=LINE, sw=1.1),
+                       f'<g transform="translate({cx - 21:.1f} {y + 13}) scale(1.75)">{glyph}</g>',
+                       txt(cx, y + 92, label, size=12.5, fill=MUTED, weight=600)))
+    parts.append("</svg>")
+    return "\n".join(parts)
+
+
 def main() -> None:
     here = os.path.dirname(os.path.abspath(__file__))
     svg_path = os.path.join(here, "tech_stack.svg")
@@ -364,15 +402,20 @@ def main() -> None:
     with open(svg_path, "w") as f:
         f.write(build_svg())
     print("wrote", svg_path)
+    thin_svg = os.path.join(here, "tech_stack_strip.svg")
+    thin_png = os.path.join(here, "tech_stack_strip.png")
+    with open(thin_svg, "w") as f:
+        f.write(build_thin_svg())
+    print("wrote", thin_svg)
     chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     if os.path.exists(chrome):
         subprocess.run([chrome, "--headless", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2",
                         f"--screenshot={png_path}", f"--window-size={W},{H}", "--default-background-color=00000000",
                         f"file://{svg_path}"], check=False, capture_output=True)
-        if os.path.exists(png_path):
-            print("wrote", png_path)
-        else:
-            print("PNG render failed; use the SVG", file=sys.stderr)
+        subprocess.run([chrome, "--headless", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2",
+                        f"--screenshot={thin_png}", f"--window-size={TW},{TH}", f"file://{thin_svg}"], check=False, capture_output=True)
+        for p_ in (png_path, thin_png):
+            print("wrote" if os.path.exists(p_) else "PNG render failed for", p_)
 
 
 if __name__ == "__main__":
