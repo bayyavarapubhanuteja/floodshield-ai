@@ -395,6 +395,43 @@ def build_thin_svg() -> str:
     return "\n".join(parts)
 
 
+# ---------------------------------------------------------------- AI tools strip
+AW, AH = 1800, 330
+AI_TOOLS = [
+    ("Claude (Claude Code)", claude_mark(), "Architecture, engines, APIs, UI, tests, docs"),
+    ("ChatGPT", chatgpt_mark(), "Research and idea refinement"),
+]
+AI_IN_PRODUCT = ["Gradient-boosted rainfall nowcast", "16-member ensemble uncertainty", "Flood-susceptibility classifier",
+                 "OpenCV flood-image analysis", "Grounded retrieval Copilot"]
+
+
+def build_ai_svg() -> str:
+    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{AW}" height="{AH}" viewBox="0 0 {AW} {AH}" font-family="Inter, Helvetica, Arial, sans-serif">',
+             '<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#070c16"/><stop offset="1" stop-color="#160f14"/></linearGradient></defs>',
+             rect(0, 0, AW, AH, 0, fill="url(#bg)"),
+             rect(28, 28, AW - 56, AH - 56, 20, fill=PANEL, stroke=LINE, sw=1.4),
+             rect(28, 28, 5, AH - 56, 3, fill="#D97757"),
+             txt(64, 78, "AI TOOLS USED TO BUILD FLOODSHIELD AI", size=20, fill="#D97757", weight=800, anchor="start"),
+             txt(64, 104, "SIH26085 · Urban Flood Nowcasting System", size=13, fill=MUTED, weight=500, anchor="start")]
+    for i, (name, glyph, role) in enumerate(AI_TOOLS):
+        x = 64 + i * 430
+        y = 130
+        parts.append(g(rect(x, y, 400, 86, 16, fill="#ffffff", sw=0, op=0.05),
+                       rect(x, y, 400, 86, 16, fill="none", stroke=LINE, sw=1.1),
+                       f'<g transform="translate({x + 22} {y + 22}) scale(1.75)">{glyph}</g>',
+                       txt(x + 92, y + 40, name, size=16, fill=INK, weight=700, anchor="start"),
+                       txt(x + 92, y + 62, role, size=12, fill=MUTED, weight=500, anchor="start")))
+    ox = 64 + 2 * 430 + 20
+    parts.append(txt(ox, 150, "AI RUNNING INSIDE THE PLATFORM", size=13, fill=BRAND, weight=800, anchor="start"))
+    for i, item in enumerate(AI_IN_PRODUCT):
+        parts.append(g(circle(ox + 7, 174 + i * 26, 3.5, fill=BRAND),
+                       txt(ox + 22, 179 + i * 26, item, size=13, fill=MUTED, weight=500, anchor="start")))
+    parts.append(txt(64, AH - 52, "Written with AI assistance and reviewed by the team · no AI service is required at runtime",
+                     size=12, fill="#64748b", weight=500, anchor="start"))
+    parts.append("</svg>")
+    return "\n".join(parts)
+
+
 def main() -> None:
     here = os.path.dirname(os.path.abspath(__file__))
     svg_path = os.path.join(here, "tech_stack.svg")
@@ -402,6 +439,11 @@ def main() -> None:
     with open(svg_path, "w") as f:
         f.write(build_svg())
     print("wrote", svg_path)
+    ai_svg = os.path.join(here, "ai_tools.svg")
+    ai_png = os.path.join(here, "ai_tools.png")
+    with open(ai_svg, "w") as f:
+        f.write(build_ai_svg())
+    print("wrote", ai_svg)
     thin_svg = os.path.join(here, "tech_stack_strip.svg")
     thin_png = os.path.join(here, "tech_stack_strip.png")
     with open(thin_svg, "w") as f:
@@ -414,7 +456,9 @@ def main() -> None:
                         f"file://{svg_path}"], check=False, capture_output=True)
         subprocess.run([chrome, "--headless", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2",
                         f"--screenshot={thin_png}", f"--window-size={TW},{TH}", f"file://{thin_svg}"], check=False, capture_output=True)
-        for p_ in (png_path, thin_png):
+        subprocess.run([chrome, "--headless", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2",
+                        f"--screenshot={ai_png}", f"--window-size={AW},{AH}", f"file://{ai_svg}"], check=False, capture_output=True)
+        for p_ in (png_path, thin_png, ai_png):
             print("wrote" if os.path.exists(p_) else "PNG render failed for", p_)
 
 
