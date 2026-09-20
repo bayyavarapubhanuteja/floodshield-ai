@@ -16,5 +16,16 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 );
 
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+  window.addEventListener("load", async () => {
+    try {
+      const reg = await navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" });
+      reg.addEventListener("updatefound", () => {
+        const sw = reg.installing;
+        sw?.addEventListener("statechange", () => {
+          // a new build is ready and an old worker was controlling the page -> reload once
+          if (sw.state === "installed" && navigator.serviceWorker.controller) location.reload();
+        });
+      });
+    } catch { /* offline support unavailable */ }
+  });
 }
