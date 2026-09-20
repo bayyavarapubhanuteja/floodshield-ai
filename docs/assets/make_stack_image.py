@@ -212,6 +212,22 @@ def cursor_mark(c):
     return g(path("M6 3l13 7.5-5.6 1.6L10.5 18z", fill=c, op=0.9), path("M6 3v15", stroke=c, sw=1.2, op=0.5))
 
 
+def gemini_mark(c="#4285f4"):
+    return g(path("M12 2c.7 5.1 4.2 8.6 9.3 9.3-5.1.7-8.6 4.2-9.3 9.3-.7-5.1-4.2-8.6-9.3-9.3C7.8 10.6 11.3 7.1 12 2z", fill=c))
+
+
+def nvidia_mark(c="#76b900"):
+    return g(path("M4 9.5c3.4-3 7.6-4.2 11.8-3.2 3 .7 5.2 2.6 5.2 4.9 0 3.4-4.2 6.3-9.4 6.3-2 0-3.8-.4-5.2-1.1", stroke=c, sw=2),
+             path("M9.5 9.2c2.1-.9 4.4-.6 5.6.7 1.1 1.2.7 2.9-1 3.8-1.4.7-3.2.7-4.6 0", stroke=c, sw=1.8),
+             circle(11.6, 11.6, 1.5, fill=c))
+
+
+def perplexity_mark(c="#20b8cd"):
+    return g(path("M12 4v16", stroke=c, sw=1.8),
+             path("M12 8 5.5 4v8.5M12 8l6.5-4v8.5", stroke=c, sw=1.8),
+             path("M12 16l-6.5 4v-8.5M12 16l6.5 4v-8.5", stroke=c, sw=1.8, op=0.75))
+
+
 def html_mark(c="#e34f26"):
     return g(path("M4 3h16l-1.5 16L12 21l-6.5-2z", fill=c, op=0.9), txt(12, 15.5, "5", size=9, fill="#0b1220"))
 
@@ -396,10 +412,13 @@ def build_thin_svg() -> str:
 
 
 # ---------------------------------------------------------------- AI tools strip
-AW, AH = 1800, 330
+AW, AH = 1800, 380
 AI_TOOLS = [
-    ("Claude (Claude Code)", claude_mark(), "Architecture, engines, APIs, UI, tests, docs"),
-    ("ChatGPT", chatgpt_mark(), "Research and idea refinement"),
+    ("Claude", claude_mark(), "Claude Code: architecture,", "engines, APIs, UI, tests, docs"),
+    ("ChatGPT", chatgpt_mark(), "Research and", "idea refinement"),
+    ("Gemini", gemini_mark(), "Concept review and", "content drafting"),
+    ("Perplexity", perplexity_mark(), "Sourced research on", "urban flood methods"),
+    ("NVIDIA", nvidia_mark(), "CUDA GPU acceleration", "(optional YOLO / PyTorch)"),
 ]
 AI_IN_PRODUCT = ["Gradient-boosted rainfall nowcast", "16-member ensemble uncertainty", "Flood-susceptibility classifier",
                  "OpenCV flood-image analysis", "Grounded retrieval Copilot"]
@@ -411,22 +430,30 @@ def build_ai_svg() -> str:
              rect(0, 0, AW, AH, 0, fill="url(#bg)"),
              rect(28, 28, AW - 56, AH - 56, 20, fill=PANEL, stroke=LINE, sw=1.4),
              rect(28, 28, 5, AH - 56, 3, fill="#D97757"),
-             txt(64, 78, "AI TOOLS USED TO BUILD FLOODSHIELD AI", size=20, fill="#D97757", weight=800, anchor="start"),
-             txt(64, 104, "SIH26085 · Urban Flood Nowcasting System", size=13, fill=MUTED, weight=500, anchor="start")]
-    for i, (name, glyph, role) in enumerate(AI_TOOLS):
-        x = 64 + i * 430
+             txt(64, 80, "AI TOOLS USED TO BUILD FLOODSHIELD AI", size=21, fill="#D97757", weight=800, anchor="start"),
+             txt(64, 106, "SIH26085 · Urban Flood Nowcasting System", size=13, fill=MUTED, weight=500, anchor="start")]
+    x0, x1 = 64, AW - 64
+    n = len(AI_TOOLS)
+    gap = 18
+    cw = (x1 - x0 - gap * (n - 1)) / n
+    for i, (name, glyph, role1, role2) in enumerate(AI_TOOLS):
+        x = x0 + i * (cw + gap)
         y = 130
-        parts.append(g(rect(x, y, 400, 86, 16, fill="#ffffff", sw=0, op=0.05),
-                       rect(x, y, 400, 86, 16, fill="none", stroke=LINE, sw=1.1),
-                       f'<g transform="translate({x + 22} {y + 22}) scale(1.75)">{glyph}</g>',
-                       txt(x + 92, y + 40, name, size=16, fill=INK, weight=700, anchor="start"),
-                       txt(x + 92, y + 62, role, size=12, fill=MUTED, weight=500, anchor="start")))
-    ox = 64 + 2 * 430 + 20
-    parts.append(txt(ox, 150, "AI RUNNING INSIDE THE PLATFORM", size=13, fill=BRAND, weight=800, anchor="start"))
-    for i, item in enumerate(AI_IN_PRODUCT):
-        parts.append(g(circle(ox + 7, 174 + i * 26, 3.5, fill=BRAND),
-                       txt(ox + 22, 179 + i * 26, item, size=13, fill=MUTED, weight=500, anchor="start")))
-    parts.append(txt(64, AH - 52, "Written with AI assistance and reviewed by the team · no AI service is required at runtime",
+        parts.append(g(rect(x, y, cw, 118, 16, fill="#ffffff", sw=0, op=0.05),
+                       rect(x, y, cw, 118, 16, fill="none", stroke=LINE, sw=1.1),
+                       f'<g transform="translate({x + cw / 2 - 21:.1f} {y + 16}) scale(1.75)">{glyph}</g>',
+                       txt(x + cw / 2, y + 78, name, size=15.5, fill=INK, weight=700),
+                       txt(x + cw / 2, y + 96, role1, size=11, fill=MUTED, weight=500),
+                       txt(x + cw / 2, y + 110, role2, size=11, fill=MUTED, weight=500)))
+    py_ = 282
+    parts.append(txt(64, py_, "AI RUNNING INSIDE THE PLATFORM:", size=13, fill=BRAND, weight=800, anchor="start"))
+    cx_ = 64 + 250
+    for item in AI_IN_PRODUCT:
+        w_ = 7.6 * len(item) + 26
+        parts.append(g(rect(cx_, py_ - 18, w_, 26, 8, fill="#38bdf81a", stroke="#38bdf855", sw=1),
+                       txt(cx_ + w_ / 2, py_ - 1, item, size=11.5, fill="#7dd3fc", weight=600)))
+        cx_ += w_ + 10
+    parts.append(txt(64, AH - 54, "Written with AI assistance and reviewed by the team · no external AI service is required at runtime",
                      size=12, fill="#64748b", weight=500, anchor="start"))
     parts.append("</svg>")
     return "\n".join(parts)
