@@ -13,8 +13,8 @@ services:
         value: production
       - key: FS_SECRET_KEY
         generateValue: true
-      - key: FS_SEED_ADMIN_PASSWORD
-        sync: false            # you are asked for this when the blueprint is created
+      - key: FS_DEMO_ACCOUNTS
+        value: "true"          # demo logins shown on the login page always work (set false for real use)
       - key: FS_DEFAULT_CITY
         value: hyderabad
       - key: FS_WEATHER_PROVIDER

@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 from app.data.cities import CITIES
 from app.models import (CitizenReport, DEMTile, DrainageEdge, DrainageNode, EmergencyContact, HistoricalFlood, Incident,
                         Infrastructure, LandCoverCell, Road, Role, User)
@@ -53,6 +53,21 @@ LOCAL_TEMPLATES = [
 def seed_if_empty(db: Session) -> None:
     if db.query(User).count() == 0:
         seed(db)
+    if get_settings().demo_accounts:
+        sync_demo_accounts(db)
+
+
+def sync_demo_accounts(db: Session) -> None:
+    """Keep the demo logins shown on the login page working (public demo deployments)."""
+    for email, name, role, dept in DEMO_USERS:
+        pw = "Admin@123" if role == "ADMIN" else "Demo@123"
+        u = db.query(User).filter_by(email=email).first()
+        if u is None:
+            db.add(User(email=email, full_name=name, hashed_password=hash_password(pw), role=role, department=dept,
+                        city=get_settings().default_city))
+        elif not verify_password(pw, u.hashed_password) or u.role != role or not u.is_active:
+            u.hashed_password, u.role, u.is_active = hash_password(pw), role, True
+    db.commit()
 
 
 def seed(db: Session, all_cities: bool = False) -> None:
@@ -63,7 +78,7 @@ def seed(db: Session, all_cities: bool = False) -> None:
             db.add(Role(name=name, description=desc, permissions=[]))
     for email, name, role, dept in DEMO_USERS:
         if not db.query(User).filter_by(email=email).first():
-            pw = settings.seed_admin_password if role == "ADMIN" else "Demo@123"
+            pw = ("Admin@123" if settings.demo_accounts else settings.seed_admin_password) if role == "ADMIN" else "Demo@123"
             db.add(User(email=email, full_name=name, hashed_password=hash_password(pw), role=role, department=dept,
                         city=settings.default_city))
     if db.query(EmergencyContact).count() == 0:

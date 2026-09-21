@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     weather_api_key: str = ""          # e.g. OpenWeatherMap key; empty => deterministic simulation
     weather_provider: str = "simulated"  # simulated | openweathermap
     seed_admin_password: str = "Admin@123"
+    # Public demo mode: on every start the five demo accounts are (re)set to the passwords shown on the
+    # login page (admin Admin@123, others Demo@123). Set FS_DEMO_ACCOUNTS=false for a real deployment.
+    demo_accounts: bool = True
     demo_seconds_total: int = 150       # fast demo compresses a 3h event into ~2.5 min
 
     @property
